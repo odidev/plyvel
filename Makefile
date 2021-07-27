@@ -30,10 +30,21 @@ test: ext
 docker-build-env:
 	docker build -t plyvel-build .
 
+docker-build-env_aarch64:
+	docker build -t plyvel-build-arm64 -f Dockerfile_aarch64 .
+
 release: docker-build-env
 	CIBW_BUILD='cp3*-manylinux_x86_64' \
 	CIBW_SKIP='cp35-manylinux_x86_64' \
 	CIBW_MANYLINUX_X86_64_IMAGE=plyvel-build \
+	CIBW_BEFORE_BUILD=scripts/cibuildwheel-before-build.sh \
+	CIBW_PLATFORM=linux \
+	cibuildwheel --output-dir dist
+
+release_aarch64: docker-build-env_aarch64
+	CIBW_BUILD='cp3*-manylinux_aarch64' \
+	CIBW_SKIP='cp35-manylinux_aarch64' \
+	CIBW_MANYLINUX_AARCH64_IMAGE=plyvel-build-arm64 \
 	CIBW_BEFORE_BUILD=scripts/cibuildwheel-before-build.sh \
 	CIBW_PLATFORM=linux \
 	cibuildwheel --output-dir dist
